@@ -1,51 +1,44 @@
-package com.skaldebane.conceptualized;
+package com.skaldebane.conceptualized
 
-import android.content.ClipData;
-import android.content.ClipDescription;
-import android.content.ClipboardManager;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
-import android.os.Bundle;
-import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageButton;
-import android.widget.TextView;
-import android.widget.Toast;
+import android.content.ClipData
+import android.content.ClipDescription
+import android.content.ClipboardManager
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
+import android.os.Bundle
+import android.widget.*
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
+import com.skaldebane.conceptualized.databinding.ActivityMainBinding
+import com.skaldebane.conceptualized.databinding.MaterialTextEditingDialogBinding
 
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
+class MainActivity : AppCompatActivity() {
 
-@SuppressWarnings({"RedundantCast", "FieldCanBeLocal"})
-public class MainActivity extends AppCompatActivity {
+    private val binding by viewBinding(ActivityMainBinding::inflate)
+    private val dialogBinding by viewBinding(MaterialTextEditingDialogBinding::inflate)
 
-    private TextView actionMaterialTextEditingDialog;
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
-        actionMaterialTextEditingDialog = (TextView) findViewById(R.id.actionMaterialTextEditingDialog);
-
-        actionMaterialTextEditingDialog.setOnClickListener(v -> {
-            final AlertDialog dialog = new AlertDialog.Builder(MainActivity.this).create();
-            View dialogView = View.inflate(MainActivity.this, R.layout.material_text_editing_dialog, null);
-            final EditText dialogEdit = dialogView.findViewById(R.id.dialogEdit);
-            final Button dialogSave = dialogView.findViewById(R.id.dialogSave);
-            final ImageButton dialogCopy = dialogView.findViewById(R.id.dialogCopy);
-            dialogSave.setOnClickListener(b -> dialog.dismiss());
-            dialogCopy.setOnClickListener(b -> {
-                ClipboardManager clipboardManager = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-                if (clipboardManager != null) {
-                    clipboardManager.setPrimaryClip(new ClipData(new ClipDescription("text", new String[]{"text"}), new ClipData.Item(dialogEdit.getText().toString())));
-                    Toast.makeText(MainActivity.this, "Copied to Clipboard", Toast.LENGTH_SHORT).show();
-                }
-            });
-            dialog.setView(dialogView);
-            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-            dialog.show();
-        });
+        binding.actionMaterialTextEditingDialog.setOnClickListener {
+            val dialog = AlertDialog.Builder(this@MainActivity).create()
+            dialogBinding.dialogSave.setOnClickListener { dialog.dismiss() }
+            dialogBinding.dialogCopy.setOnClickListener {
+                val clipboardManager = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
+                clipboardManager.setPrimaryClip(ClipData(
+                        ClipDescription("text", arrayOf("text")),
+                        ClipData.Item(dialogBinding.dialogEdit.text.toString())
+                ))
+                Toast.makeText(
+                        this@MainActivity,
+                        "Copied to Clipboard",
+                        Toast.LENGTH_SHORT
+                ).show()
+            }
+            dialog.setView(dialogBinding.root)
+            dialog.window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            dialog.show()
+        }
     }
-
 }
